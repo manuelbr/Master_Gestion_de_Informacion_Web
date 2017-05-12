@@ -6,6 +6,7 @@
 package p4.giw;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Level;
@@ -18,18 +19,18 @@ import javax.swing.JOptionPane;
  */
 public class Main extends javax.swing.JFrame {
     private static HashMap<Integer,Integer> valoracionesPeliculas;
+    private int id;
     
     /**
      * Creates new form Main
      */
     public Main() throws IOException {
         initComponents();
+        
         valoracionesPeliculas = new HashMap<Integer,Integer>();
         //Se cargan los datos de las películas y las valoraciones dadas
         Sugeridor.loadData();
         setPeliculas();
-        
-        
         
         //Se establecen las etiquetas de las valoraciones posibles
         nota.removeAllItems();
@@ -50,7 +51,8 @@ public class Main extends javax.swing.JFrame {
             while(valoracionesPeliculas.containsKey(rand)){
                 rand = (int) (Math.random() * 1682) + 1;
             }
-            valoracionesPeliculas.put(rand,0);
+            /////////////////////////////////////MODIFICAR Y PONER SOLO 0/////////////////////////////////////////////////
+            valoracionesPeliculas.put(rand,(i%5)+1);
             titulosPelis[i] = Integer.toString(rand) + "-" + ((Pelicula) Sugeridor.getPeliculas().get(rand-1)).getTitulo();
         }
         
@@ -70,9 +72,8 @@ public class Main extends javax.swing.JFrame {
         jList1 = new javax.swing.JList<>();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        nota = new javax.swing.JComboBox<>();
-        guardar = new javax.swing.JButton();
         terminar = new javax.swing.JButton();
+        nota = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -93,24 +94,17 @@ public class Main extends javax.swing.JFrame {
 
         jLabel2.setText("Nota (Sobre 5)");
 
-        nota.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        nota.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                notaItemStateChanged(evt);
-            }
-        });
-
-        guardar.setText("Guardar");
-        guardar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                guardarActionPerformed(evt);
-            }
-        });
-
         terminar.setText("Ver usuarios parecidos");
         terminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 terminarActionPerformed(evt);
+            }
+        });
+
+        nota.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { }));
+        nota.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notaActionPerformed(evt);
             }
         });
 
@@ -121,23 +115,19 @@ public class Main extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(85, 85, 85)
                 .addComponent(jLabel1)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 90, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 56, Short.MAX_VALUE)
-                        .addComponent(jLabel2)
-                        .addGap(18, 18, 18)
-                        .addComponent(nota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(36, 36, 36)
-                        .addComponent(guardar, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(14, 14, 14)))
+                .addComponent(jScrollPane1)
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(terminar, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(nota, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(terminar, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(102, 102, 102))
         );
         layout.setVerticalGroup(
@@ -147,11 +137,10 @@ public class Main extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
+                .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(nota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(guardar))
+                    .addComponent(nota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(terminar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -161,24 +150,12 @@ public class Main extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
-        int id = Integer.parseInt(jList1.getSelectedValue().toString().split("-")[0]);
+        id = Integer.parseInt(jList1.getSelectedValue().toString().split("-")[0]);
         if(valoracionesPeliculas.get(id).equals(0)){
             nota.setSelectedIndex(0);
         }else
             nota.setSelectedIndex(valoracionesPeliculas.get(id));
     }//GEN-LAST:event_jList1ValueChanged
-
-    private void notaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_notaItemStateChanged
-        
-    }//GEN-LAST:event_notaItemStateChanged
-
-    private void guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarActionPerformed
-        int id = Integer.parseInt(jList1.getSelectedValue().toString().split("-")[0]);
-        
-        if(!((String)nota.getSelectedItem()).equals("No valorada")){
-            valoracionesPeliculas.replace(id, Integer.parseInt((String)nota.getSelectedItem()));
-        }
-    }//GEN-LAST:event_guardarActionPerformed
 
     private void terminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_terminarActionPerformed
         boolean sentinel = false;
@@ -194,9 +171,22 @@ public class Main extends javax.swing.JFrame {
         if(sentinel){
             JOptionPane.showMessageDialog(null, "No se han valorado todas las películas");
         }else{
-            //Sugeridor.calcular()
+            Sugeridor sg = new Sugeridor();
+            sg.mapReduce();
+            ArrayList<Integer> resultados = sg.calculaVecinos(valoracionesPeliculas);
+            String acumulador = " ";
+            for(int j = 0; j<resultados.size(); j++){
+                acumulador += resultados.get(j) + ", ";
+            }
+            JOptionPane.showMessageDialog(null, "Los vecinos más acordes a tí son: " + acumulador);
         }
     }//GEN-LAST:event_terminarActionPerformed
+
+    private void notaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notaActionPerformed
+        if(!((String)nota.getSelectedItem()).equals("No valorada")){
+            valoracionesPeliculas.replace(id, Integer.parseInt((String)nota.getSelectedItem()));
+        }
+    }//GEN-LAST:event_notaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -224,7 +214,6 @@ public class Main extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
       
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -239,7 +228,6 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton guardar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JList<String> jList1;

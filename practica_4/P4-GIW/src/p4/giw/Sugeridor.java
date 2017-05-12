@@ -20,6 +20,7 @@ import java.util.Set;
 public class Sugeridor {
     private static ArrayList<Object> peliculas;
     private static ArrayList<Object> valoraciones;
+    private HashMap<Integer,HashMap<Integer,Integer>> usuarios;
     
     
     /*
@@ -73,11 +74,69 @@ public class Sugeridor {
         peliculas = readData("data/u.item");
     }
     
-    public ArrayList<Integer> calculaVecinos(HashMap<Integer,Integer> valors){
-        ArrayList<Valoracion> aComparar = new ArrayList<Valoracion>();
+    /*
+    * Función para la acumulación de los perfiles de usuario 
+    * en función de sus valoraciones
+    *
+    */
+    
+    public void mapReduce(){
+        usuarios = new HashMap<Integer,HashMap<Integer,Integer>>();
         
-        for(int i = 0; i<valoraciones.size(); i++){
-            //if(((Valoracion) valoraciones.get(i)).getIdMovie() == )
+        //Se inicializa el vector de usuarios
+        for(int i = 0; i< valoraciones.size(); i++){
+            usuarios.put(((Valoracion)valoraciones.get(i)).getIdUser(), new HashMap<Integer,Integer>());
         }
+        
+        //Se produce el mapeado-reducción
+        for(int i = 0; i< valoraciones.size(); i++){
+            usuarios.get(((Valoracion)valoraciones.get(i)).getIdUser()).put(((Valoracion)valoraciones.get(i)).getIdMovie(),((Valoracion)valoraciones.get(i)).getValoracion());
+        }
+    }
+    
+    /*
+    * Función que calcula lo vecinos de un usuario en función de las valoraciones que ha dado a sus películas
+    * asignadas.
+    *
+    */
+    public ArrayList<Integer> calculaVecinos(HashMap<Integer,Integer> valors){
+        int numVecinos = 0;
+        int i = 0;
+        int acumulacion1, acumulacion2, acumulacion3;
+        double resultado;
+        ArrayList<Integer> vecinos = new ArrayList<Integer>();
+        
+        
+        Integer[] keys = (Integer[]) usuarios.keySet().toArray(new Integer[usuarios.keySet().size()]);
+        Set<Integer> keysUsuario = valors.keySet();
+        
+        while(numVecinos < 10){
+            acumulacion1 = 0;
+            acumulacion2 = 0;
+            acumulacion3 = 0;
+            int aux = 0;
+            for(int keyM : keysUsuario){
+                if(usuarios.get(keys[i]).containsKey(keyM)){
+                    aux++;
+                    acumulacion2 += Math.pow(valors.get(keyM),2);
+                    acumulacion1 += usuarios.get(keys[i]).get(keyM) * valors.get(keyM);
+                    acumulacion3 += Math.pow(usuarios.get(keys[i]).get(keyM),2);
+                }
+            }
+            
+            resultado = acumulacion1/(Math.sqrt(acumulacion2) * Math.sqrt(acumulacion3));
+            
+            //System.out.println(keys[i] + " " + resultado);
+            //System.out.println(acumulacion1 + " " + acumulacion2 + " " +acumulacion3);
+            if(resultado > 0.5){
+                numVecinos++;
+                vecinos.add(keys[i]);
+                System.out.println(keys[i] + " " + resultado);
+                System.out.println("El numero de coincidencias en este vecino es: "+aux);
+            }
+            i++;
+        }
+        
+        return vecinos;
     }
 }
