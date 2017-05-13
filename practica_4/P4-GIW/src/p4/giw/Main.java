@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -173,10 +174,12 @@ public class Main extends javax.swing.JFrame {
         }else{
             Sugeridor sg = new Sugeridor();
             sg.mapReduce();
-            ArrayList<Integer> resultados = sg.calculaVecinos(valoracionesPeliculas);
+            HashMap<Integer,Double> resultados = sg.calculaVecinos(valoracionesPeliculas);
+            resultados = Sugeridor.sortByValues(resultados);
+            Integer[] vecinos = resultados.keySet().toArray(new Integer[resultados.keySet().size()]);
             String acumulador = " ";
-            for(int j = 0; j<resultados.size(); j++){
-                acumulador += resultados.get(j) + ", ";
+            for(int j = (vecinos.length-10); j<vecinos.length; j++){
+                acumulador += vecinos[j] + ", ";
             }
             JOptionPane.showMessageDialog(null, "Los vecinos más acordes a tí son: " + acumulador);
         }

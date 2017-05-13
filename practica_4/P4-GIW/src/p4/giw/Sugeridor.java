@@ -10,7 +10,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -99,44 +105,94 @@ public class Sugeridor {
     * asignadas.
     *
     */
-    public ArrayList<Integer> calculaVecinos(HashMap<Integer,Integer> valors){
+    public HashMap<Integer,Double> calculaVecinos(HashMap<Integer,Integer> valors){
         int numVecinos = 0;
-        int i = 0;
         int acumulacion1, acumulacion2, acumulacion3;
         double resultado;
-        ArrayList<Integer> vecinos = new ArrayList<Integer>();
-        
+        HashMap<Integer,Double> vecinos = new HashMap<Integer,Double>();
+        HashMap<Integer,Double> medias = new HashMap<Integer,Double>();
+        double mediaUsuario = 0;
         
         Integer[] keys = (Integer[]) usuarios.keySet().toArray(new Integer[usuarios.keySet().size()]);
         Set<Integer> keysUsuario = valors.keySet();
         
-        while(numVecinos < 10){
+        //Se calculan las medias de rate de los usuarios en función de los hash que se tienen.
+        for(int k = 0; k<keys.length; k++){
+            Set<Integer> keysMoviesUsuario = usuarios.get(keys[k]).keySet();
+            int acumulador_Notas = 0;
+            int acumulador_NumPelis = 0;
+            for(int keyM : keysMoviesUsuario){
+                acumulador_Notas += usuarios.get(keys[k]).get(keyM);
+                acumulador_NumPelis++;
+            }
+            medias.put(keys[k], (acumulador_Notas+0.0)/(acumulador_NumPelis+0.0));
+        }
+        //Media de rate del usuario
+        for(int keyM : keysUsuario){
+            mediaUsuario += valors.get(keyM);
+        }
+        mediaUsuario = mediaUsuario/valors.size();
+        
+        for(int p = 0; p<keys.length; p++){
             acumulacion1 = 0;
             acumulacion2 = 0;
             acumulacion3 = 0;
             int aux = 0;
             for(int keyM : keysUsuario){
-                if(usuarios.get(keys[i]).containsKey(keyM)){
+                if(usuarios.get(keys[p]).containsKey(keyM)){
                     aux++;
-                    acumulacion2 += Math.pow(valors.get(keyM),2);
-                    acumulacion1 += usuarios.get(keys[i]).get(keyM) * valors.get(keyM);
-                    acumulacion3 += Math.pow(usuarios.get(keys[i]).get(keyM),2);
+                    acumulacion2 += Math.pow((usuarios.get(keys[p]).get(keyM) - medias.get(keys[p])),2);
+                    acumulacion1 += (usuarios.get(keys[p]).get(keyM) - medias.get(keys[p])) * (valors.get(keyM) - mediaUsuario);
+                    acumulacion3 += Math.pow((valors.get(keyM) - mediaUsuario),2);
                 }
             }
             
-            resultado = acumulacion1/(Math.sqrt(acumulacion2) * Math.sqrt(acumulacion3));
-            
-            //System.out.println(keys[i] + " " + resultado);
-            //System.out.println(acumulacion1 + " " + acumulacion2 + " " +acumulacion3);
-            if(resultado > 0.5){
-                numVecinos++;
-                vecinos.add(keys[i]);
-                System.out.println(keys[i] + " " + resultado);
-                System.out.println("El numero de coincidencias en este vecino es: "+aux);
-            }
-            i++;
+            if(acumulacion2 != 0 && acumulacion3 != 0){
+                resultado = acumulacion1/(Math.sqrt(acumulacion2) * Math.sqrt(acumulacion3));
+            }else
+                resultado = 0;
+               
+            vecinos.put(keys[p], resultado);
         }
         
-        return vecinos;
+        //Se devuelve el vecindario ordenado
+        Map<Integer, Double> map = sortByValues(vecinos); 
+        HashMap<Integer,Double> vecinosFinales = new HashMap<Integer,Double>();
+        
+        Set<Integer> ks = map.keySet();
+        for(int k: ks){
+            if(map.get(k) != 0){
+                System.out.println(k + " " + map.get(k));
+                vecinosFinales.put(k,map.get(k));
+            }
+        }
+        
+       
+        return vecinosFinales;
+    }
+    
+    /*
+    * Clase de comparación para ordenar el vecindario de menor a mayor
+    *
+    */
+    
+    public static HashMap sortByValues(HashMap map) { 
+       LinkedList list = new LinkedList(map.entrySet());
+       // Defined Custom Comparator here
+       Collections.sort(list, new Comparator() {
+            public int compare(Object o1, Object o2) {
+               return ((Comparable) ((Map.Entry) (o1)).getValue())
+                  .compareTo(((Map.Entry) (o2)).getValue());
+            }
+       });
+
+       // Here I am copying the sorted list in HashMap
+       // using LinkedHashMap to preserve the insertion order
+       HashMap sortedHashMap = new LinkedHashMap();
+       for (Iterator it = list.iterator(); it.hasNext();) {
+              Map.Entry entry = (Map.Entry) it.next();
+              sortedHashMap.put(entry.getKey(), entry.getValue());
+       } 
+       return sortedHashMap;
     }
 }
