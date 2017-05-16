@@ -45,23 +45,21 @@ public class Sugeridor {
         String[] lineSplited;
         ArrayList<Integer> generos;
         while((line = in.readLine()) != null){
-            
-            switch(route){
-                case "data/u.data": lineSplited = line.replaceAll("[^\\S\\r\\n]+", " ").trim().split(" ");
-                                    Valoracion v = new Valoracion(Integer.parseInt(lineSplited[0]),Integer.parseInt(lineSplited[1]), Integer.parseInt(lineSplited[2]), Integer.parseInt(lineSplited[3]));
-                                    lista.add(v);
-                                    break;
-                                    
-                case "data/u.item": line = new String(line.getBytes("UTF-8"), "UTF-8");
-                                    lineSplited = line.split("\\|");
-                                    generos = new ArrayList<Integer>();
-                                    for(int i = 5; i<24; i++){
-                                        generos.add(Integer.parseInt(lineSplited[i]));
-                                    }
-                                    Pelicula p = new Pelicula(Integer.parseInt(lineSplited[0]),lineSplited[1], generos);
-                                    lista.add(p);
-                                    break;
-            }
+            if(route.contains("u.data")){
+                lineSplited = line.replaceAll("[^\\S\\r\\n]+", " ").trim().split(" ");
+                Valoracion v = new Valoracion(Integer.parseInt(lineSplited[0]),Integer.parseInt(lineSplited[1]), Integer.parseInt(lineSplited[2]), Integer.parseInt(lineSplited[3]));
+                lista.add(v);
+            }else
+                if(route.contains("u.item")){
+                    line = new String(line.getBytes("UTF-8"), "UTF-8");
+                    lineSplited = line.split("\\|");
+                    generos = new ArrayList<Integer>();
+                    for(int i = 5; i<24; i++){
+                        generos.add(Integer.parseInt(lineSplited[i]));
+                    }
+                    Pelicula p = new Pelicula(Integer.parseInt(lineSplited[0]),lineSplited[1], generos);
+                    lista.add(p);
+                }
         }
         in.close();
         
@@ -189,12 +187,10 @@ public class Sugeridor {
                     acumulacion2 += Math.pow((usuarios.get(keys[p]).get(keyM) - medias.get(keys[p])),2);
                     acumulacion1 += (usuarios.get(keys[p]).get(keyM) - medias.get(keys[p])) * (valors.get(keyM) - mediaUsuario);
                     acumulacion3 += Math.pow((valors.get(keyM) - mediaUsuario),2);
-                    //System.out.println("El usuario: "+keys[p]+" para la peli: "+keyM+" tiene una valoracion de: "+usuarios.get(keys[p]).get(keyM)+" y el usuario ha dado una puntuación de: "+valors.get(keyM));
                 }
             }
             
             if(acumulacion2 != 0 && acumulacion3 != 0){
-                //System.out.println("El usuario: "+keys[p]+" ha coincidido en: "+aux);
                 resultado = acumulacion1/(Math.sqrt(acumulacion2) * Math.sqrt(acumulacion3));
             }else
                 resultado = 0;
@@ -209,7 +205,6 @@ public class Sugeridor {
         Set<Integer> ks = map.keySet();
         for(int k: ks){
             if(map.get(k) != 0){
-                //System.out.println(k + " " + map.get(k));
                 vecinosFinales.put(k,map.get(k));
             }
         }
@@ -225,7 +220,7 @@ public class Sugeridor {
     
     public static HashMap sortByValues(HashMap map) { 
        LinkedList list = new LinkedList(map.entrySet());
-       // Defined Custom Comparator here
+
        Collections.sort(list, new Comparator() {
             public int compare(Object o1, Object o2) {
                return ((Comparable) ((Map.Entry) (o1)).getValue())
@@ -233,8 +228,6 @@ public class Sugeridor {
             }
        });
 
-       // Here I am copying the sorted list in HashMap
-       // using LinkedHashMap to preserve the insertion order
        HashMap sortedHashMap = new LinkedHashMap();
        for (Iterator it = list.iterator(); it.hasNext();) {
               Map.Entry entry = (Map.Entry) it.next();

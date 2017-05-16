@@ -181,10 +181,8 @@ public class Main extends javax.swing.JFrame {
             
             Integer[] pelisId = pelisSugeridas.keySet().toArray(new Integer[pelisSugeridas.keySet().size()]);
             for(int i = (pelisId.length-10); i<pelisId.length; i++){
-                //System.out.println("La película: "+pelisId[i]+" ha obtenido la puntuación: "+pelisSugeridas.get(pelisId[i]));
                 if(pelisSugeridas.get(pelisId[i]) >= 4){
                     peliculas.add(((Pelicula)Sugeridor.getPeliculas().get(pelisId[i])).getTitulo());
-                    System.out.println(pelisSugeridas.get(pelisId[i]));
                 }
             }
 
@@ -226,10 +224,10 @@ public class Main extends javax.swing.JFrame {
         }
         //</editor-fold>
       
-        //if(args.length == 2){
+        if(args.length == 2){
             //Se cargan los datos de las películas y las valoraciones dadas
-            rutaValoraciones = /*args[0]*/"data/u.data";
-            rutaPeliculas = /*args[1]*/"data/u.item";
+            rutaValoraciones = args[0];
+            rutaPeliculas = args[1];
             
             /* Create and display the form */
             java.awt.EventQueue.invokeLater(new Runnable() {
@@ -241,11 +239,8 @@ public class Main extends javax.swing.JFrame {
                     }
                 }
             });
-        //}else
-        //    System.out.println("Debe introducir primero la ruta al fichero de valoraciones y después al fichero de películas");
-        
-        
-        
+        }else
+            System.out.println("Se debe especificar primero la ruta del fichero de datos y luego la ruta del fichero de películas");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
